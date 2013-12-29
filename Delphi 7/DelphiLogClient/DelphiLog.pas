@@ -18,11 +18,14 @@ type
   private
     Host: THost;
     fEnabled: Boolean;
+    fShowErrorMessages: Boolean;
     procedure SendData(const copyDataStruct: TCopyDataStruct);
   public
     procedure WriteMessage(sMessage: string);
     property Enabled: Boolean read fEnabled write fEnabled;
-    constructor Create;  
+    // Show error messages on client.
+    property ShowErrorMessages: Boolean read fShowErrorMessages write fShowErrorMessages;
+    constructor Create;
   end;
 
 implementation
@@ -37,6 +40,7 @@ implementation
 constructor TDelphiLog.Create;
 begin
   Self.Enabled := True;
+  Self.ShowErrorMessages := True;
 end;
 
 procedure TDelphiLog.SendData(const copyDataStruct: TCopyDataStruct);
@@ -47,7 +51,7 @@ begin
   receiverHandle := FindWindow(PChar(Host.ClassName), PChar(Host.WindowName));
   if (receiverHandle = 0) then
   begin
-    ShowMessage('CopyData Receiver NOT found!');
+    if (Self.ShowErrorMessages) then ShowMessage('Copy Data Receiver NOT found!');
     Exit;
   end;
 

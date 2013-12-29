@@ -18,10 +18,13 @@ type
   private
     Host: THost;
     fEnabled: Boolean;
+    fShowErrorMessages: Boolean;
     procedure SendData(const copyDataStruct: TCopyDataStruct);
   public
     procedure WriteMessage(sMessage: string);
     property Enabled: Boolean read fEnabled write fEnabled;
+    property ShowErrorMessages: Boolean read fShowErrorMessages write fShowErrorMessages;
+   // procedure ShowMessage(sMessage: string);
     constructor Create;  
   end;
 
@@ -37,6 +40,7 @@ implementation
 constructor TDelphiLog.Create;
 begin
   Self.Enabled := True;
+  Self.ShowErrorMessages := True;
 end;
 
 procedure TDelphiLog.SendData(const copyDataStruct: TCopyDataStruct);
@@ -47,13 +51,19 @@ begin
   receiverHandle := FindWindow(PChar(Host.ClassName), PChar(Host.WindowName));
   if (receiverHandle = 0) then
   begin
-    ShowMessage('CopyData Receiver NOT found!');
+    if (Self.ShowErrorMessages) then ShowMessage('Copy Data Receiver NOT found!');
     Exit;
   end;
 
   res := SendMessage(receiverHandle, WM_COPYDATA, integer(Application.Handle),
     integer(@copyDataStruct));
 end;
+
+//
+//procedure TDelphiLog.ShowMessage(sMessage: string);
+//begin
+//   ShowMessage(sMessage);
+//end;
 
 /// <summary>
 /// Write message to DelphiLog application.
@@ -69,7 +79,7 @@ begin
   copyDataStruct.cbData := (1 + Length(sMessage)) * SizeOf(Char);
   copyDataStruct.lpData := PChar(sMessage);
   Self.Host.ClassName := 'TfrmMain';
-  Self.Host.WindowName := 'DelphiLog';
+  Self.Host.WindowName := 'Delphi Log-Host';
   Self.SendData(copyDataStruct);
 end;
 end.
