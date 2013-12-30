@@ -46,12 +46,13 @@ implementation
 procedure TfrmMain.AddMessage(sMessage: string);
 var
   status: string;
-  row: Integer;
-  sdatetime: string;
+//  row: Integer;
+//  sdatetime: string;
 begin
-  row := mmoStatus.Lines.Count + 1;
-  sdatetime := DateTimeToStr(Now);
-  status := Format('[%4d] - [%s] %s', [row, sdatetime, sMessage]);
+//  row := mmoStatus.Lines.Count + 1;
+//  sdatetime := DateTimeToStr(Now);
+//  status := Format('[%4d] - [%s] %s', [row, sdatetime, sMessage]);
+  status := sMessage;
   mmoStatus.Lines.Append(status);
 end;
 

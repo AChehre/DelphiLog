@@ -11,6 +11,7 @@ type
     btnWriteLog: TButton;
     btnLogEnabled: TButton;
     edtMessage: TEdit;
+    chkWritetoConsoleandFile: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure btnWriteLogClick(Sender: TObject);
     procedure btnLogEnabledClick(Sender: TObject);
@@ -35,6 +36,12 @@ end;
 
 procedure TForm1.btnWriteLogClick(Sender: TObject);
 begin
+  if (chkWritetoConsoleandFile.Checked) then
+  begin
+    DelphiLog.OutputType := otConsoleandFile;
+    DelphiLog.LogFilePath := 'C:\DelphiLog.log';
+  end;
+
   DelphiLog.WriteMessage(edtMessage.Text);
 end;
 
