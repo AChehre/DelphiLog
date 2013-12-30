@@ -40,7 +40,9 @@ begin
   begin
     DelphiLog.OutputType := otConsoleandFile;
     DelphiLog.LogFilePath := 'C:\DelphiLog.log';
+    DelphiLog.LogFileBufferCount := 3;
   end;
+
 
   DelphiLog.WriteMessage(edtMessage.Text);
 end;

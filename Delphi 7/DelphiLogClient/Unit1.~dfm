@@ -3,7 +3,7 @@ object Form1: TForm1
   Top = 249
   BorderStyle = bsSingle
   Caption = 'Form1'
-  ClientHeight = 126
+  ClientHeight = 166
   ClientWidth = 340
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -18,7 +18,7 @@ object Form1: TForm1
   TextHeight = 13
   object btnWriteLog: TButton
     Left = 48
-    Top = 40
+    Top = 72
     Width = 257
     Height = 25
     Caption = 'Write Log'
@@ -27,7 +27,7 @@ object Form1: TForm1
   end
   object btnLogEnabled: TButton
     Left = 48
-    Top = 80
+    Top = 112
     Width = 257
     Height = 25
     Caption = 'Disable Log'
@@ -41,5 +41,13 @@ object Form1: TForm1
     Height = 21
     TabOrder = 2
     Text = 'Log Message'
+  end
+  object chkWritetoConsoleandFile: TCheckBox
+    Left = 48
+    Top = 40
+    Width = 257
+    Height = 17
+    Caption = 'Write to Console and File'
+    TabOrder = 3
   end
 end
