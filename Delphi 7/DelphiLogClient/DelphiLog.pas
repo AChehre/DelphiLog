@@ -23,18 +23,26 @@ type
     /// </summary>
     /// <param name="sMessage">The message to write.</param>
     procedure WriteMessage(sMessage: string);
+    function  GetLogCount: Integer;
+    procedure SetLogCount(const Value: Integer);
+
+    property LogCount: Integer read GetLogCount write SetLogCount;
   end;
 
 
   TConsoleLog = class(TInterfacedObject, IDelphiLog)
   private
     Host: THost;
-    fShowErrorMessages: Boolean;
+    FShowErrorMessages: Boolean;
+    FLogCount: Integer;
     procedure SendData(const copyDataStruct: TCopyDataStruct);
+    function GetLogCount: Integer;
+    procedure SetLogCount(const Value: Integer);
   public
     procedure WriteMessage(sMessage: string);
 
     property ShowErrorMessages: Boolean read fShowErrorMessages write fShowErrorMessages;
+    property LogCount: Integer read GetLogCount write SetLogCount;
 
     constructor Create(showErrorMessage: Boolean);
   end;
@@ -42,15 +50,19 @@ type
   TFileLog = class(TInterfacedObject, IDelphiLog)
   private
     LogBuffer: TStringList;
-    fLogBufferCount: Integer;
-    fLogFilePath: string;
+    FLogBufferCount: Integer;
+    FLogFilePath: string;
+    FLogCount: Integer;
     procedure WritetoFile;
+    function GetLogCount: Integer;
+    procedure SetLogCount(const Value: Integer);
   public
     procedure WriteMessage(sMessage: string);
     procedure DeleteLogFile;
 
     property LogBufferCount: Integer read fLogBufferCount write fLogBufferCount;
     property LogFilePath: string read fLogFilePath write fLogFilePath;
+    property LogCount: Integer read GetLogCount write SetLogCount;
 
 //    constructor Create; overload;
     constructor Create(logFilePath: String); //overload;
@@ -60,16 +72,19 @@ type
 
   TDelphiLog = class(TInterfacedObject, IDelphiLog)
   private
-    fEnabled: Boolean;
-    fShowErrorMessages: Boolean;
-    fTOutputType: TOutputType;
-    fConsoleLog: TConsoleLog;
-    fFileLog: TFileLog;
-    fLogFilePath: string;
+    FEnabled: Boolean;
+    FShowErrorMessages: Boolean;
+    FTOutputType: TOutputType;
+    FConsoleLog: TConsoleLog;
+    FFileLog: TFileLog;
+    FLogFilePath: string;
+    FLogCount: Integer;
     function getConsoleLog: TConsoleLog;
     function getFileLog: TFileLog;
     function getLogFileBufferCount: Integer;
     procedure setLogFileBufferCount(const Value: Integer);
+    function GetLogCount: Integer;
+    procedure SetLogCount(const Value: Integer);
   public
     procedure WriteMessage(sMessage: string);
     property Enabled: Boolean read fEnabled write fEnabled;
@@ -80,6 +95,7 @@ type
     property FileLog: TFileLog read getFileLog write fFileLog;
     property LogFilePath: string read fLogFilePath write fLogFilePath;
     property LogFileBufferCount: Integer read getLogFileBufferCount write setLogFileBufferCount;
+    property LogCount: Integer read GetLogCount write SetLogCount;
 
     constructor Create;
     destructor Close;
@@ -133,9 +149,19 @@ begin
   Result := fFileLog;
 end;
 
+function TDelphiLog.GetLogCount: Integer;
+begin
+  Result := FLogCount;
+end;
+
 function TDelphiLog.getLogFileBufferCount: Integer;
 begin
   if(Self.fFileLog = nil) then Result := 1 else Result := Self.fFileLog.fLogBufferCount;
+end;
+
+procedure TDelphiLog.SetLogCount(const Value: Integer);
+begin
+  FLogCount := Value;
 end;
 
 procedure TDelphiLog.setLogFileBufferCount(const Value: Integer);
@@ -172,6 +198,11 @@ begin
   Self.ShowErrorMessages := showErrorMessage;
 end;
 
+function TConsoleLog.GetLogCount: Integer;
+begin
+  Result := FLogCount;
+end;
+
 procedure TConsoleLog.SendData(const copyDataStruct: TCopyDataStruct);
 var
   receiverHandle: THandle;
@@ -186,6 +217,11 @@ begin
 
   res := SendMessage(receiverHandle, WM_COPYDATA, integer(Application.Handle),
   integer(@copyDataStruct));
+end;
+
+procedure TConsoleLog.SetLogCount(const Value: Integer);
+begin
+  FLogCount := Value;
 end;
 
 procedure TConsoleLog.WriteMessage(sMessage: string);
@@ -218,6 +254,16 @@ end;
 procedure TFileLog.DeleteLogFile;
 begin
   DeleteFile(Self.LogFilePath);
+end;
+
+function TFileLog.GetLogCount: Integer;
+begin
+  Result := FLogCount;
+end;
+
+procedure TFileLog.SetLogCount(const Value: Integer);
+begin
+  FLogCount := Value;
 end;
 
 procedure TFileLog.WriteMessage(sMessage: string);
