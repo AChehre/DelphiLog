@@ -85,6 +85,8 @@ type
     procedure setLogFileBufferCount(const Value: Integer);
     function GetLogCount: Integer;
     procedure SetLogCount(const Value: Integer);
+    function GetComputerNetName: string;
+    function GetUserFromWindows: string;
   public
     procedure WriteMessage(sMessage: string);
     property Enabled: Boolean read fEnabled write fEnabled;
@@ -129,6 +131,18 @@ begin
 end;
 
 
+function TDelphiLog.GetComputerNetName: string;
+var
+  buffer: array[0..255] of char;
+  size: dword;
+begin
+  size := 256;
+  if GetComputerName(buffer, size) then
+    Result := buffer
+  else
+    Result := ''
+end;
+
 function TDelphiLog.getConsoleLog: TConsoleLog;
 begin
   if fConsoleLog = nil then
@@ -159,6 +173,19 @@ begin
   if(Self.fFileLog = nil) then Result := 1 else Result := Self.fFileLog.fLogBufferCount;
 end;
 
+function TDelphiLog.GetUserFromWindows: string;
+var
+   UserName : string;
+   UserNameLen : Dword;
+Begin
+   UserNameLen := 255;
+   SetLength(userName, UserNameLen) ;
+   If GetUserName(PChar(UserName), UserNameLen) Then
+     Result := Copy(UserName,1,UserNameLen - 1)
+   Else
+     Result := 'Unknown';
+End;
+
 procedure TDelphiLog.SetLogCount(const Value: Integer);
 begin
   FLogCount := Value;
@@ -171,14 +198,19 @@ end;
 
 procedure TDelphiLog.WriteMessage(sMessage: string);
 var
-  slogmessage: String;
-  sdatetime: string;
+  slogmessage  : String;
+  sdatetime    : string;
+  computername : String;
+  username     : string;
 begin
   if not Self.Enabled then
     Exit;
 
   sdatetime := DateTimeToStr(Now);
-  slogmessage := Format('[%s] %s', [sdatetime, sMessage]);
+  computername := GetComputerNetName;
+  username := GetUserFromWindows;
+
+  slogmessage := Format('[%s]-[%s]-[%s] %s', [sdatetime, computername, username, sMessage]);
 
   case OutputType of
     otConsole: Self.ConsoleLog.WriteMessage(slogmessage);
