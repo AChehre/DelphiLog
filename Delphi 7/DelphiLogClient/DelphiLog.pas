@@ -77,7 +77,6 @@ type
     FTOutputType: TOutputType;
     FConsoleLog: TConsoleLog;
     FFileLog: TFileLog;
-    FLogFilePath: string;
     FLogCount: Integer;
     function getConsoleLog: TConsoleLog;
     function getFileLog: TFileLog;
@@ -87,6 +86,8 @@ type
     procedure SetLogCount(const Value: Integer);
     function GetComputerNetName: string;
     function GetUserFromWindows: string;
+    function GetLogFilePath: string;
+    procedure SetLogFilePath(const Value: string);
   public
     procedure WriteMessage(sMessage: string);
     property Enabled: Boolean read fEnabled write fEnabled;
@@ -95,7 +96,7 @@ type
     property OutputType: TOutputType read fTOutputType write fTOutputType;
     property ConsoleLog: TConsoleLog read getConsoleLog write fConsoleLog;
     property FileLog: TFileLog read getFileLog write fFileLog;
-    property LogFilePath: string read fLogFilePath write fLogFilePath;
+    property LogFilePath: string read GetLogFilePath write SetLogFilePath;
     property LogFileBufferCount: Integer read getLogFileBufferCount write setLogFileBufferCount;
     property LogCount: Integer read GetLogCount write SetLogCount;
 
@@ -173,6 +174,12 @@ begin
   if(Self.fFileLog = nil) then Result := 1 else Result := Self.fFileLog.fLogBufferCount;
 end;
 
+function TDelphiLog.GetLogFilePath: string;
+begin
+  if (Self.fFileLog = nil) then Self.fFileLog := TFileLog.Create('');
+  Result := Self.fFileLog.LogFilePath;
+end;
+
 function TDelphiLog.GetUserFromWindows: string;
 var
    UserName : string;
@@ -194,6 +201,11 @@ end;
 procedure TDelphiLog.setLogFileBufferCount(const Value: Integer);
 begin
   Self.FileLog.fLogBufferCount := Value;
+end;
+
+procedure TDelphiLog.SetLogFilePath(const Value: string);
+begin
+ Self.fFileLog.LogFilePath := Value;
 end;
 
 procedure TDelphiLog.WriteMessage(sMessage: string);
