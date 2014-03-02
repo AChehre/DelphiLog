@@ -1,0 +1,33 @@
+unit CheDevLog;
+
+interface
+
+type
+
+  ICheDevLog = interface ['{D8E4F10C-4C6E-4395-8F0D-B3FEEBC79119}']
+    procedure WriteMessage(sMessage: string);
+  end;
+  
+  TCheDevLog = class(T)
+  private
+
+  protected
+
+  public
+    constructor Create; override;
+    destructor Destroy; override;
+  published
+
+  end;
+
+
+
+implementation
+
+{$WRITEABLECONST ON}
+const _CheDevLog : ICheDevLog = nil;
+{$WRITEABLECONST OFF}
+
+
+end.
+ 

@@ -4,21 +4,16 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, DelphiLog;
+  Dialogs, StdCtrls, CheDevLogManager;
 
 type
   TForm1 = class(TForm)
     btnWriteLog: TButton;
-    btnLogEnabled: TButton;
     edtMessage: TEdit;
     chkWritetoConsoleandFile: TCheckBox;
-    procedure FormCreate(Sender: TObject);
     procedure btnWriteLogClick(Sender: TObject);
-    procedure btnLogEnabledClick(Sender: TObject);
   private
-    DelphiLog: TDelphiLog;
   public
-    { Public declarations }
   end;
 
 var
@@ -29,26 +24,9 @@ implementation
 
 {$R *.dfm}
 
-procedure TForm1.FormCreate(Sender: TObject);
-begin
-  DelphiLog := TDelphiLog.Create;
-end;
-
 procedure TForm1.btnWriteLogClick(Sender: TObject);
 begin
-  if (chkWritetoConsoleandFile.Checked) then
-  begin
-    DelphiLog.OutputType := otConsoleandFile;
-    DelphiLog.LogFilePath := 'C:\DelphiLog.log';
-  end;
-
-  DelphiLog.WriteMessage(edtMessage.Text);
-end;
-
-procedure TForm1.btnLogEnabledClick(Sender: TObject);
-begin
-  DelphiLog.Enabled := not DelphiLog.Enabled;
-  if (DelphiLog.Enabled) then btnLogEnabled.Caption := 'Disable Log' else btnLogEnabled.Caption := 'Enable Log';
+  TCheDevLogManager.WriteMessage(edtMessage.Text);
 end;
 
 end.

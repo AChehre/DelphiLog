@@ -1,0 +1,95 @@
+unit CheDevConsoleLog;
+
+interface
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, CheDevLog, CheDevSystem;
+
+type
+  ICheDevLogConsole = interface(ICheDevLog)
+   ['{B9025CAB-DE7D-4BC6-ADA9-8773325CCFD3}']
+    function  GetLogCount: Integer;
+    procedure SetLogCount(const Value: Integer);
+    property LogCount: Integer read GetLogCount write SetLogCount;
+  end;
+
+
+  THost = record
+    ClassName: string;
+    WindowName: string;
+  end;
+  
+  TCheDevLogConsole = class(TInterfacedObject, ICheDevLogConsole)
+  private
+    Host: THost;
+    FShowErrorMessages: Boolean;
+    FLogCount: Integer;
+    function SendData(const copyDataStruct: TCopyDataStruct): Integer;
+    function GetLogCount: Integer;
+    procedure SetLogCount(const Value: Integer);
+    function GetFormatedMessage(sMessage: String): string;
+  public
+    procedure WriteMessage(sMessage: string);
+    property ShowErrorMessages: Boolean read fShowErrorMessages write fShowErrorMessages;
+    property LogCount: Integer read GetLogCount write SetLogCount;
+    constructor Create(showErrorMessage: Boolean);
+  end;
+
+implementation
+
+{ TConsoleLog }
+
+constructor TCheDevLogConsole.Create(showErrorMessage: Boolean);
+begin
+  Self.ShowErrorMessages := showErrorMessage;
+end;
+
+function TCheDevLogConsole.GetFormatedMessage(sMessage: String): string;
+var sDateTime: String;
+begin
+  sDateTime := DateTimeToStr(Now);
+  Result := Format('[%s]-[%s]-[%s] : %s', [TCheDevSystem.GetComputerNetName(),
+    TCheDevSystem.GetUserFromWindows(), sDateTime, sMessage])
+end;
+
+function TCheDevLogConsole.GetLogCount: Integer;
+begin
+  Result := FLogCount;
+end;
+
+function TCheDevLogConsole.SendData(const copyDataStruct: TCopyDataStruct): Integer;
+var
+  receiverHandle: THandle;
+begin
+  Result := -1;
+  receiverHandle := FindWindow(PChar(Host.ClassName), PChar(Host.WindowName));
+  if (receiverHandle = 0) then
+  begin
+    if (Self.ShowErrorMessages) then ShowMessage('Copy Data Receiver NOT found!');
+    Exit;
+  end;
+
+  Result := SendMessage(receiverHandle, WM_COPYDATA, integer(Application.Handle),
+  integer(@copyDataStruct));
+end;
+
+procedure TCheDevLogConsole.SetLogCount(const Value: Integer);
+begin
+  FLogCount := Value;
+end;
+
+procedure TCheDevLogConsole.WriteMessage(sMessage: string);
+var
+  copyDataStruct: TCopyDataStruct;
+begin
+  copyDataStruct.dwData := 0; // use it to identify the message contents
+  copyDataStruct.cbData := (1 + Length(sMessage)) * SizeOf(Char);
+  copyDataStruct.lpData := PChar(sMessage);
+  Self.Host.ClassName := 'TfrmMain';
+  Self.Host.WindowName := 'Delphi Log-Host';
+  Self.SendData(copyDataStruct);
+end;
+
+
+end.
+ 

@@ -6,8 +6,7 @@ uses
   CheDevFileLog in 'CheDevFileLog.pas',
   CheDevConsoleLog in 'CheDevConsoleLog.pas',
   CheDevSystem in 'CheDevSystem.pas',
-  CheDevLog in 'CheDevLog.pas',
-  CheDevLogManager in 'CheDevLogManager.pas';
+  CheDevLog in 'CheDevLog.pas';
 
 {$R *.res}
 

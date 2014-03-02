@@ -1,0 +1,131 @@
+unit CheDevFileLog;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, CheDevLog, CheDevSystem;
+
+type
+
+  ICheDevLogFile = interface(ICheDevLog)
+   ['{0606885C-6E2F-408A-980A-A70AEA6FBC14}']
+    function  GetMaxLogFileSize: Int64;
+    procedure SetMaxLogFileSize(const Value: Int64);
+    property MaxLogFileSize: Int64 read GetMaxLogFileSize write SetMaxLogFileSize;
+  end;
+
+
+
+  TCheDevLogFile = class(TInterfacedObject, ICheDevLogFile)
+  private
+    LogBuffer: TStringList;
+    FLogBufferCount: Integer;
+    FLogFilePath: string;
+    FLogCount: Integer;
+    FMaxLogFileSize: Int64;
+    procedure WritetoFile;
+    function GetLogCount: Integer;
+    procedure SetLogCount(const Value: Integer);
+    function  GetMaxLogFileSize: Int64;
+    procedure SetMaxLogFileSize(const Value: Int64);
+    function GetFormatedMessage(sMessage: String): string;
+  public
+    procedure WriteMessage(sMessage: string);
+    procedure DeleteLogFile;
+
+    property LogBufferCount: Integer read fLogBufferCount write fLogBufferCount;
+    property LogFilePath: string read fLogFilePath write fLogFilePath;
+    property LogCount: Integer read GetLogCount write SetLogCount;
+    property MaxLogFileSize: Int64 read GetMaxLogFileSize write SetMaxLogFileSize;
+
+    constructor Create(logFilePath: String); //overload;
+    destructor Close;
+  end;
+
+
+implementation
+
+{ TFileLog }
+
+destructor TCheDevLogFile.Close;
+begin
+  WritetoFile;
+  Self.LogBuffer.Free;
+end;
+
+constructor TCheDevLogFile.Create(logFilePath: String);
+begin
+  Self.MaxLogFileSize := 0;
+  Self.LogBufferCount := 0;
+  Self.LogFilePath := logFilePath;
+end;
+
+procedure TCheDevLogFile.DeleteLogFile;
+begin
+  DeleteFile(Self.LogFilePath);
+end;
+
+function TCheDevLogFile.GetFormatedMessage(sMessage: String): string;
+var sDateTime: String;
+begin
+  sDateTime := DateTimeToStr(Now);
+  Result := Format('[%s]-[%s]-[%s] : %s', [TCheDevSystem.GetComputerNetName(),
+    TCheDevSystem.GetUserFromWindows(), sDateTime, sMessage])
+end;
+
+function TCheDevLogFile.GetLogCount: Integer;
+begin
+  Result := FLogCount;
+end;
+
+function TCheDevLogFile.GetMaxLogFileSize: Int64;
+begin
+  Result := FMaxLogFileSize;
+end;
+
+procedure TCheDevLogFile.SetLogCount(const Value: Integer);
+begin
+  FLogCount := Value;
+end;
+
+procedure TCheDevLogFile.SetMaxLogFileSize(const Value: Int64);
+begin
+  FMaxLogFileSize := Value;
+end;
+
+procedure TCheDevLogFile.WriteMessage(sMessage: string);
+var smsg: String;
+begin
+  if  LogBuffer = nil then  LogBuffer := TStringList.Create;
+  smsg := GetFormatedMessage(sMessage);
+  LogBuffer.Append(smsg);
+
+  if (LogBufferCount<1) or (LogBufferCount <= LogBuffer.Count) then
+  begin
+    WritetoFile;
+  end;
+end;
+
+procedure TCheDevLogFile.WritetoFile;
+var logfile: TextFile;
+    i: Integer;
+
+begin
+  if LogBuffer = nil then
+    Exit;
+
+  if TCheDevSystem.GetFileSize(LogFilePath)>= MaxLogFileSize then
+    DeleteLogFile;
+
+  AssignFile(logfile, Self.LogFilePath);
+  if (FileExists(Self.LogFilePath)) then Append(logfile) else Rewrite(logfile);
+
+  for i := 0 to LogBuffer.Count-1 do
+  begin
+    Writeln(logfile, LogBuffer[i]);
+  end;
+  LogBuffer.Clear;
+  CloseFile(logfile);
+end;
+end.
